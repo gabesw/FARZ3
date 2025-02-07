@@ -1,7 +1,8 @@
 import random
 import bisect
 import math
-import os 
+import os
+
 
 def random_choice(values, weights=None , size = 1, replace = True):
     if weights is None:
@@ -18,9 +19,9 @@ def random_choice(values, weights=None , size = 1, replace = True):
         if len(values)>i: return values[i] 
         else: return None
     else: 
-        cval = [values[j] for j in range(len(values)) if replace or i<>j]
+        cval = [values[j] for j in range(len(values)) if replace or i!=j]
         if weights is None: cwei=None 
-        else: cwei = [weights[j] for j in range(len(weights)) if replace or i<>j]
+        else: cwei = [weights[j] for j in range(len(weights)) if replace or i!=j]
         tmp= random_choice(cval, cwei, size-1, replace)
         if not isinstance(tmp,list): tmp = [tmp]
         tmp.append(values[i])
@@ -106,7 +107,8 @@ class Graph:
         import networkx as nx
         G=nx.Graph()
         for i in range(self.n):
-            G.add_node(i, {'c':str(sorted(C.memberships[i]))})
+            #G.add_node(i, {'c':str(sorted(C.memberships[i]))})
+            G.add_node(i, c=str(sorted(C.memberships[i]))) #New networkx add_node format
 #             G.add_node(i, {'c':int(C.memberships[i][0][0])})
         for i in range(len(self.edge_list)):
 #         for u,v, w in self.edge_list:
@@ -116,6 +118,7 @@ class Graph:
         return G
     
     def to_ig(self):
+        import igraph as ig
         G=ig.Graph()
         G.add_edges(self.edge_list)
         return G 
@@ -236,19 +239,19 @@ def assign(i, C, e=1, r=1, q = 0.5):
     return
  
 def print_setting(n,m,k,alpha,beta,gamma, phi,o,q,epsilon,weighted,directed):
-    print 'n:',n,'m:', m ,'k:', k,'alpha:', alpha,'beta:', beta,'gamma:', gamma,
-    if phi!=default_FARZ_setting['phi']: print 'phi:', phi, 
-    if o!=default_FARZ_setting['o']: print 'r:', o,
-    if q!=default_FARZ_setting['q']: print 'pr:', q, 
+    print('n:',n,'m:', m ,'k:', k,'alpha:', alpha,'beta:', beta,'gamma:', gamma,)
+    if phi!=default_FARZ_setting['phi']: print('phi:', phi, )
+    if o!=default_FARZ_setting['o']: print('r:', o,)
+    if q!=default_FARZ_setting['q']: print('pr:', q, )
     if epsilon!=default_FARZ_setting['epsilon']:'epsilon:', epsilon, 
-    print 'weighted' if weighted else '', 'directed' if directed else ''
+    print('weighted' if weighted else '', 'directed' if directed else '')
     
 def realize(n, m,  k, b=0.0,  alpha=0.4, beta=0.5, gamma=0.1, phi=1, o=1, q = 0.5, epsilon = 0.0000001, weighted =False, directed=False):
     print_setting(n,m,k,alpha,beta,gamma, phi,o,q,epsilon,weighted,directed)
     G =  Graph()
     C = Comms(k)
     for i in range(n):
-#         if i%10==0: print '-- ',G.n, len(G.edge_list)
+#         if i%10==0: print('-- ',G.n, len(G.edge_list))
         G.add_node()
         assign(i, C, phi, o, q)
         connect(i,b, G, C, alpha, beta, gamma, epsilon)
@@ -258,33 +261,33 @@ def realize(n, m,  k, b=0.0,  alpha=0.4, beta=0.5, gamma=0.1, phi=1, o=1, q = 0.
     return G,C
 
 
-def props():
-    import plotNets as pltn
-    import matplotlib as mpl
-    mpl.rcParams['axes.unicode_minus']=False
-    graphs = []
-    names = []
-    params = default_FARZ_setting.copy()
-    for alp, gam in [(0.5,0.5), (0.8,0.2), (.5,-0.5), (0.2,-0.8)]:
-        params[ "alpha"]=alp
-        params[ "gamma"]=gam
-        print str(params)
-        G, C =realize(**params)
-        print 'n=',G.n,' e=', len(G.edge_list)
-        print 'Q=',Q(G,C)
-        G = G.to_nx(C)
-        pltn.printGraphStats(G)
-        graphs.append(G.to_undirected())
-        # name = 'F'+str(params)
-        name = '$\\alpha ='+str(params[ "alpha"]) +',\; \\gamma='+str(params[ "gamma"])+"$"
-        names.append(name)
-        nx.write_gml(graphs[-1], "farz-"+str(params[ "alpha"])+str(params[ "gamma"])+'.gml')
-    
-    pltn.plot_dists(graphs,names)
+# def props():
+#     import plotNets as pltn
+#     import matplotlib as mpl
+#     mpl.rcParams['axes.unicode_minus']=False
+#     graphs = []
+#     names = []
+#     params = default_FARZ_setting.copy()
+#     for alp, gam in [(0.5,0.5), (0.8,0.2), (.5,-0.5), (0.2,-0.8)]:
+#         params[ "alpha"]=alp
+#         params[ "gamma"]=gam
+#         print(str(params))
+#         G, C =realize(**params)
+#         print('n=',G.n,' e=', len(G.edge_list))
+#         print('Q=',Q(G,C))
+#         G = G.to_nx(C)
+#         pltn.printGraphStats(G)
+#         graphs.append(G.to_undirected())
+#         # name = 'F'+str(params)
+#         name = '$\\alpha ='+str(params[ "alpha"]) +',\; \\gamma='+str(params[ "gamma"])+"$"
+#         names.append(name)
+#         nx.write_gml(graphs[-1], "farz-"+str(params[ "alpha"])+str(params[ "gamma"])+'.gml')
+#
+#     pltn.plot_dists(graphs,names)
 
 def write_to_file(G,C,path, name,format,params):
     if not os.path.exists(path+'/'): os.makedirs(path+'/')
-    print 'n=',G.n,' e=', len(G.edge_list), 'generated, writing to ', path+'/'+name, ' in', format
+    print('n=',G.n,' e=', len(G.edge_list), 'generated, writing to ', path+'/'+name, ' in', format)
     if format == 'gml':
         import networkx as nx
         G = G.to_nx(C)
@@ -318,7 +321,7 @@ def generate( vari =None, arange =None, repeat = 1, path ='.', net_name = 'netwo
     for i,var in enumerate(get_range(arange[0],arange[1],arange[2])): 
         for r in range(repeat):
             farz_params[vari] = var
-            print 's',i+1, r+1, str(farz_params)
+            print('s',i+1, r+1, str(farz_params))
             G, C =realize(**farz_params)
             name = 'S'+str(i+1)+'-'+net_name+ (str(r+1) if repeat>1 else '') 
             write_to_file(G,C,path,name,format,farz_params)
@@ -333,44 +336,44 @@ def main(argv):
         opts, args = getopt.getopt(argv,"ho:s:v:c:f:n:k:m:a:b:g:p:r:q:t:e:dw",\
                                    ["output=","path=","repeat=","vary=",'range=','format=',"alpha=","beta=","gamma=",'phi=','overlap=','oProb=','epsilon=','cneigh=','directed','weighted'])
     except getopt.GetoptError:
-        print 'invalid command, try -h to see usage and options'
+        print('invalid command, try -h to see usage and options')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print '*** examples:'
-            print '+ example 1: generate a network with 1000 nodes and about 5x1000 edges (m=5), with 4 communities, where 90% of edges fall within communities (beta=0.9)'
-            print '> python FARZ.py -n 1000 -m 5 -k 4 --beta 0.9\n'
-            print '+ example 2: generate a network with properties of example 1, where alpha = 0.2 and gamma = -0.8'
-            print '> python FARZ.py -n 1000 -m 5 -k 4 --beta 0.9 --alpha 0.2 --gamma -0.8 \n'
-            print '+ example 3: generate 10 sample networks with properties of example 1 and save them into ./data'
-            print '> python FARZ.py --path ./data -s 10 -n 1000 -m 5 -k 4 --beta 0.9\n'
-            print '+ example 4: repeat example 2, for beta that varies from 0.5 to 1 with 0.05 increments'
-            print '> python FARZ.py --path ./data -s 10 -v beta -c [0.5,1,0.05] -n 1000 -m 5 -k 4 \n'
-            print '+ example 5: generate overlapping communities, where each node belongs to at most 3 communities and the portion of overlapping nodes varies'
-            print 'python FARZ.py -r 3 -v q --path ./datavrq -s 5 --format list\n'
+            print('*** examples:')
+            print('+ example 1: generate a network with 1000 nodes and about 5x1000 edges (m=5), with 4 communities, where 90% of edges fall within communities (beta=0.9)')
+            print('> python FARZ.py -n 1000 -m 5 -k 4 --beta 0.9\n')
+            print('+ example 2: generate a network with properties of example 1, where alpha = 0.2 and gamma = -0.8')
+            print('> python FARZ.py -n 1000 -m 5 -k 4 --beta 0.9 --alpha 0.2 --gamma -0.8 \n')
+            print('+ example 3: generate 10 sample networks with properties of example 1 and save them into ./data')
+            print('> python FARZ.py --path ./data -s 10 -n 1000 -m 5 -k 4 --beta 0.9\n')
+            print('+ example 4: repeat example 2, for beta that varies from 0.5 to 1 with 0.05 increments')
+            print('> python FARZ.py --path ./data -s 10 -v beta -c [0.5,1,0.05] -n 1000 -m 5 -k 4 \n')
+            print('+ example 5: generate overlapping communities, where each node belongs to at most 3 communities and the portion of overlapping nodes varies')
+            print('python FARZ.py -r 3 -v q --path ./datavrq -s 5 --format list\n')
             
-            print '*** parameters:'
-            print '-n: number of nodes, default (1000)'
-            print '-m: half the average degree of nodes, default (5)'
-            print '-k: number of communities, default (4)'
-            print '-b [or --beta]: the strength of community structure, i.e. the probability of edges to be formed within communities, default (0.8)'
-            print '-a [or --alpha]: the strength of common neighbor\'s effect on edge formation edges, default (0.5)'
-            print '-g [or --gamma]: the strength of degree similarity effect on edge formation, default (0.5), can be negative for networks with negative degree correlation'
-            print '-p [or --phi]: the constant added to all community sizes, higher number makes the communities more balanced in size, default (1), which results in power law distribution for community sizes'
-            print '-r: the number of communities each node can belong to, default (1)' 
-            print '-q: the probability of a node belonging to the multiple communities, default (0.5)' 
-            print '-e [or --epsilon]: the probability of noisy/random edges, default (0.0000001)'
-            print '-t: the probability of also connecting to the neighbors of a node each nodes connects to. The default value is (0), but could be increased to a small number to achieve higher clustering coefficient. \n'
+            print('*** parameters:')
+            print('-n: number of nodes, default (1000)')
+            print('-m: half the average degree of nodes, default (5)')
+            print('-k: number of communities, default (4)')
+            print('-b [or --beta]: the strength of community structure, i.e. the probability of edges to be formed within communities, default (0.8)')
+            print('-a [or --alpha]: the strength of common neighbor\'s effect on edge formation edges, default (0.5)')
+            print('-g [or --gamma]: the strength of degree similarity effect on edge formation, default (0.5), can be negative for networks with negative degree correlation')
+            print('-p [or --phi]: the constant added to all community sizes, higher number makes the communities more balanced in size, default (1), which results in power law distribution for community sizes')
+            print('-r: the number of communities each node can belong to, default (1)' )
+            print('-q: the probability of a node belonging to the multiple communities, default (0.5)' )
+            print('-e [or --epsilon]: the probability of noisy/random edges, default (0.0000001)')
+            print('-t: the probability of also connecting to the neighbors of a node each nodes connects to. The default value is (0), but could be increased to a small number to achieve higher clustering coefficient. \n')
 
-            print '*** batch parameters:'
-            print '-s: the number of networks to be sampled with the given properties, default (1)' 
-            print '-o: the name of the output network, default (network)'
-            print '--path : the path to write the network(s) to, default (.)'
-            print '-f [or --format]: the format of output, list or gml, default (gml)'
-            print '-v: the parameter to vary and sample networks for, default (None)'
-            print '-c: the range to change the given parameter, should be in format of [s,e,inc]'
-            #print 'default FARZ parameters are :\n', default_FARZ_setting
-            #print 'default batch generator parameters are :\n', default_batch_setting
+            print('*** batch parameters:')
+            print('-s: the number of networks to be sampled with the given properties, default (1)' )
+            print('-o: the name of the output network, default (network)')
+            print('--path : the path to write the network(s) to, default (.)')
+            print('-f [or --format]: the format of output, list or gml, default (gml)')
+            print('-v: the parameter to vary and sample networks for, default (None)')
+            print('-c: the range to change the given parameter, should be in format of [s,e,inc]')
+            #print('default FARZ parameters are :\n', default_FARZ_setting)
+            #print('default batch generator parameters are :\n', default_batch_setting)
             
             sys.exit()
             
@@ -382,70 +385,70 @@ def main(argv):
             if arg in supported_formats:
                 batch_setting['format'] = arg
             else:
-                print 'Format not supported , choose from ',supported_formats,' or try -h to see the usage and options'
+                print('Format not supported , choose from ',supported_formats,' or try -h to see the usage and options')
                 sys.exit(2)                
         elif opt in ("-s","--repeat"):
             try: batch_setting['repeat'] = int(arg) 
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)            
         elif opt in ("-v", "--vary"):
             if (arg in default_ranges.keys()):
                 batch_setting['vari'] = arg
             else:
-                print 'Invalid variable, choose form :', default_ranges.keys(), ', try -h to see the usage and options'
+                print('Invalid variable, choose form :', default_ranges.keys(), ', try -h to see the usage and options')
                 sys.exit(2)
         elif opt in ("-c", "--range"):
             try:
                 arange = [float(s) for s in arg[1:-1].split(',')]
                 batch_setting['arange'] = arange
-            except Error:
-                print 'Invalid range, should have the following form : [start,end,incrementBy], try -h to see the usage and options '
+            except Exception:
+                print('Invalid range, should have the following form : [start,end,incrementBy], try -h to see the usage and options ')
                 sys.exit(2)               
         elif opt in ("-n"):
             try: FARZsetting['n'] = int(arg) 
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)
         elif opt in ("-k"):
             try: FARZsetting['k'] = int(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)
         elif opt in ("-m"):
             try: FARZsetting['m'] = int(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)
         elif opt in ("-a","--alpha"):
             try: FARZsetting['alpha'] = float(arg)  
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)         
         elif opt in ("-b","--beta"):
             try: FARZsetting['beta'] = float(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)                        
         elif opt in ("-g","--gamma"):
             try: FARZsetting['gamma'] = float(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)  
         elif opt in ("-p","--phi"):
             try: FARZsetting['phi'] = int(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)         
         elif opt in ("-r","--overlap"):
             try: FARZsetting['o'] = int(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)      
         elif opt in ("-q","--oProb"):
             try: FARZsetting['q'] = float(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)
         elif opt in ("-d","--directed"):
             FARZsetting['directed'] = True
@@ -454,16 +457,16 @@ def main(argv):
         elif opt in ("-t","--cneigh"):
             try: FARZsetting['b'] = float(arg)
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)         
         elif opt in ("-e","--epsilon"):
             try: FARZsetting['epsilon'] = float(arg)         
             except ValueError:
-                print 'Invalid Number , try -h to see the usage and options'
+                print('Invalid Number , try -h to see the usage and options')
                 sys.exit(2)
                 
     batch_setting['farz_params'] = FARZsetting
-    print 'generating FARZ benchmark(s) ... '
+    print('generating FARZ benchmark(s) ... ')
     generate( **batch_setting)
           
 

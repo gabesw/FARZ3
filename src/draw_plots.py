@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from scipy.interpolate import UnivariateSpline
 from scipy import interpolate
-from sklearn.neighbors.kde import KernelDensity
 from scipy.stats import norm
 from sklearn.neighbors import KernelDensity
 from matplotlib.patches import Polygon
@@ -77,7 +76,7 @@ def basic_properties_freq( sequences , axess=None, labl = None, logscale=False, 
         smax =max(seq)
         smin =min(seq)
         
-        #print seq
+        #print(seq)
         freqs , bin_edges = np.histogram(seq,  smax+1 if smax>1 else 100, range = (0,smax+1) if smax>1 else (0,smax))#, normed = True, density=True)
         bin_centers =  (bin_edges[:-1] + bin_edges[1:])/2.
         vals = range(0,smax+1) if smax>1 else bin_centers
@@ -97,9 +96,9 @@ def basic_properties_freq( sequences , axess=None, labl = None, logscale=False, 
 #         x = bin_centers
 #         f = UnivariateSpline(x, freqs)#, s=0.1*len(freq))
 #         ax.plot(x, f(x),c= his.get_color(), alpha=0.5)
-#         print len(freqs) #, freqs
-#         print bin_edges
-#         print bin_centers
+#         print(len(freqs) #, freqs)
+#         print(bin_edges)
+#         print(bin_centers)
 
         #remove zeros
         y = np.array(freqs)
@@ -145,7 +144,7 @@ def basic_properties( sequences , axess=None, labl = None, logscale=[False], mar
         smin =min(seq)
 
         if distir[i]==0:
-            #print seq
+            #print(seq)
             freqs , bin_edges = np.histogram(seq,  smax+1 if smax>1 else 100, range = (0,smax+1) if smax>1 else (0,smax))#, normed = True, density=True)
             bin_centers =  (bin_edges[:-1] + bin_edges[1:])/2.
             vals = range(0,smax+1) if smax>1 else bin_centers
@@ -160,7 +159,7 @@ def basic_properties( sequences , axess=None, labl = None, logscale=[False], mar
             X = np.array(seq)
             X = [ x for x in X if x>=limits[i][0] and x<=limits[i][1]]
     #         X= (np.abs(X))
-#             print len(X)
+#             print(len(X))
             X = np.random.choice(X, size=min(10000, len(X)))
             X = X[:, np.newaxis]
             kde = KernelDensity(kernel = 'gaussian', bandwidth=bandwidths[i]).fit(X)#,atol=atols[i],kernel = 'tophat'kernel='gaussian'
@@ -199,9 +198,9 @@ def test_density_plot():
     X = np.concatenate((np.random.normal(0, 1, 0.3 * N),
                         np.random.normal(5, 1, 0.7 * N)))[:, np.newaxis]
                         
-    print np.shape(X)
+    print(np.shape(X))
     X_plot = np.linspace(-5, 10, 1000)[:, np.newaxis]   
-    print np.shape(X_plot)
+    print(np.shape(X_plot))
     kde = KernelDensity(kernel='gaussian', bandwidth=0.75).fit(X)
     log_dens = kde.score_samples(X_plot)
     ax[0,0].fill(X_plot[:, 0], np.exp(log_dens), fc='#AAAAFF')

@@ -14,7 +14,7 @@ def generalize_three_pass_network(G,  assign_nodes, overlay_communities, c_param
     return overlay_communities(G, C,  c_params)
 
 def print_seq_stats(msg, S):
-    print msg, ':::\t len: ',len(S),' min: ', np.min(S) ,' avg: ',np.mean(S),' max: ',  np.max(S),' sum: ',  np.sum(S)
+    print(msg, ':::\t len: ',len(S),' min: ', np.min(S) ,' avg: ',np.mean(S),' max: ',  np.max(S),' sum: ',  np.sum(S))
 
 
 
@@ -25,7 +25,7 @@ def assign_CN(G, c_params):
             if Cid[u]>=0: p[Cid[u]]+=1
         p= [p[i] for i in ec] #remove communities that are full
         p= [i/sum(p) for i in p]#np.divide(p, np.sum(p))
-#         print p
+#         print(p)
         return p
     return assign_LFR(G,  c_params, cn_prob)
 
@@ -42,15 +42,15 @@ def random_choice(values, weights=None, size = 1, replace = True):
             cum_weights.append(total)
         x = random.random() * total
         i = bisect.bisect(cum_weights, x)
-#         print weights
+#         print(weights)
         #res =  values[i]
     
     if size <=1: return values[i]
     else: 
-#         print i,  values
-        cval = [values[j] for j in range(len(values)) if replace or i<>j]
+#         print(i,  values)
+        cval = [values[j] for j in range(len(values)) if replace or i!=j]
         if weights is None: cwei=None 
-        else: cwei = [weights[j] for j in range(len(weights)) if replace or i<>j]
+        else: cwei = [weights[j] for j in range(len(weights)) if replace or i!=j]
         
 #         if not replace :  del values[i]
         return values[i], random_choice(cval, cwei, size-1, replace)
@@ -64,8 +64,8 @@ def assign_first_pass_original(G,mu, s, c, cid, prob):
 #         if prob is None:
 #             p = None 
 #         else: 
-#             print prob
-#             print ec
+#             print(prob)
+#             print(ec)
 #             p = prob(G,v,c, cid)
 #             p = [p[i] for i in ec]
 #             p =  np.divide(p, np.sum(p))
@@ -104,10 +104,10 @@ def assign_LFR(G, c_params, prob=None, first_pass= assign_first_pass_original,  
     mu = c_params['mu']
 #   determine capacity of communities
     d_max = np.max(G.deg)
-#     print G.n, c_params['s_max'], d_max, (1-mu) *d_max 
+#     print(G.n, c_params['s_max'], d_max, (1-mu) *d_max )
     
     if  c_params['s_max']< (1-mu) *d_max :  c_params['s_max'] =(1-mu) * d_max
-#     print c_params['s_max'], d_max
+#     print(c_params['s_max'], d_max)
   
     s = sample_power_law(**c_params)
     c_max = max(s)
@@ -126,7 +126,7 @@ def assign_LFR(G, c_params, prob=None, first_pass= assign_first_pass_original,  
 #   assign homeless nodes to communities
     while len(H)>0 and max_itr>itr:
         itr+=1
-#         print itr
+#         print(itr)
 #       pick a community at random
         v = random_choice(H)
         ec = [i for i in range( len(c))]
@@ -143,7 +143,7 @@ def assign_LFR(G, c_params, prob=None, first_pass= assign_first_pass_original,  
                 cid[u] = -1
                 H.append(u)
                 
-    if len(H)>0: print "Failed in 2nd run"
+    if len(H)>0: print("Failed in 2nd run")
     for v in H:
 #       pick a community at random
         ec =[i for i in range( len(c))]
@@ -265,13 +265,13 @@ def sample_power_law( s_exp=2, n=None, s_avg=None, s_max=None, s_min=1, s_sum=No
                                 tmp-=shift
                 else: break            
     
-#         print S, np.sum(S), s_sum
+#         print(S, np.sum(S), s_sum)
     return S
 
 
     
 def scale_truncate(S, max=None, min=None, avg=None, c= None):
-#     print c
+#     print(c)
     if c==None:
         c = 1
         if avg is not None: 
@@ -297,7 +297,7 @@ def scale_truncate(S, max=None, min=None, avg=None, c= None):
 def LFR(n, k_avg, k_max, mu, c_min, c_max, k_exp=2, c_exp=1, assign= assign_LFR, model = configuration_model):
     if c_max < (1-mu) * k_max: 
         c_max = k_max
-        print 'maximum size for communities adjusted to fit the node with largest degree'
+        print('maximum size for communities adjusted to fit the node with largest degree')
     return generalize_three_pass(model, assign, overlay_LFR,
                                  g_params = {"n":n, "s_avg":k_avg, "s_max":k_max, "s_exp":k_exp}, 
                                  c_params= { "mu": mu, "s_min": c_min, "s_max":c_max, "s_exp":c_exp}  )
